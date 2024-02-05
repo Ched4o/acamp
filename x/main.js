@@ -1,38 +1,43 @@
-const names = document.querySelectorAll("[data-name]");
-const value = document.querySelectorAll("[data-revenue]");
-const namePodium = document.querySelectorAll("[data-name-podium]");
-const valuePodium = document.querySelectorAll("[data-revenue-podium]");
+// Simulando a atualização fictícia do ranking
+const novoRanking = [
+  { nome: "CONEXÃO EM CRISTO", pontos: 1600 },
+  { nome: "MENSAGEIROS DA ESPERANÇA", pontos: 1400 },
+  { nome: "ATALAIAS DO REI", pontos: 1200 },
+  { nome: "GERAÇÃO 7", pontos: 500 },  // Corrigindo a pontuação
+  { nome: "FRUTOS DA CRUZ", pontos: 600 },
+  { nome: "HB11", pontos: 600 },
+  { nome: "JADS", pontos: 400 },
+  { nome: "REMIDOS", pontos: 300 },
+  { nome: "FILHOS DO REI", pontos: 200 },
+  { nome: "HERDEIROS DA COROA", pontos: 100 },
+];
 
-function getFormattedRevenue(revenue) {
-  const formattedRevenue = ((Math.ceil(revenue / 100) * 100 / 100) / 1000000).toFixed(1);
+const rankingAtual = document.getElementById("ranking-list");
 
-  return `R$ ${formattedRevenue}${revenue < 1000000 ? " K" : "M"}`;
+// Detectando mudanças na pontuação e posição
+for (let i = 0; i < novoRanking.length; i++) {
+  const novoItem = novoRanking[i];
+  const itemAtual = rankingAtual.children[i];
+
+  if (novoItem.nome === itemAtual.querySelector("p").innerText) {
+    const pontosAtual = parseInt(itemAtual.querySelector(".revenue").innerText);
+
+    if (novoItem.pontos !== pontosAtual) {
+      // Adicionando uma classe de animação para elementos que mudaram de posição
+      itemAtual.classList.add("troca-de-posicao");
+    }
+  }
 }
 
-const fetchData = () => {
-  fetch('https://cors-everywhere.onrender.com/https://api.kiwify.com.br/v1/open/competition-ranking')
-    .then(response => response.json())
-    .then(data => {
-      data = JSON.parse(data);
+// Atualizando o HTML com o novo ranking (simulação)
+rankingAtual.innerHTML = "";
+novoRanking.forEach((item, index) => {
+  const li = document.createElement("li");
+  li.innerHTML = `<span>${index + 1}</span>
+                   <img src="./assets/pato.gif" alt="" srcset="" />
+                   <p data-name>${item.nome}</p>
+                   <span data-revenue class="revenue">${item.pontos}</span>`;
+  rankingAtual.appendChild(li);
+});
 
-      const iterations = data.length > names.length ? names.length : data.length;
-
-      for (let i = 0; i < iterations; i++) {
-        names[i].innerHTML = data[i].competition_username;
-        value[i].innerHTML = getFormattedRevenue(data[i].revenue);
-
-        if (i < namePodium.length && i < valuePodium.length) {
-          namePodium[i].innerHTML = data[i].competition_username;
-          valuePodium[i].innerHTML = getFormattedRevenue(data[i].revenue);
-        }
-      }
-    })
-    .catch(error => console.error(error));
-}
-
-window.addEventListener("load", () => {
-  fetchData();
-  setInterval(function () {
-    fetchData();
-  }, 60 * 1000);
-})
+// Agora, a classe "troca-de-posicao" pode ser usada no seu CSS para adicionar a animação desejada
